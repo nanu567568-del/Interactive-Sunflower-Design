@@ -142,6 +142,21 @@
         hint.innerText = "Replay Animation";
         hint.style.opacity = "1";
     });
+
+const startScreen = document.getElementById('start-screen');
+const video = document.getElementById('mainVideo');
+
+startScreen.addEventListener('click', () => {
+    // 1. Hide the overlay
+    startScreen.style.opacity = "0";
+    setTimeout(() => { startScreen.style.display = "none"; }, 500);
+
+    // 2. IMPORTANT: Unmute and Play
+    video.muted = false; // This "flips the switch" to allow your music to be heard
+    video.play().catch(err => {
+        console.error("Playback failed. Logic Error:", err);
+    });
+});
 </script>
 
 
