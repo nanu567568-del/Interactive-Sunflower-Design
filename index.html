@@ -4,55 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Sunflower Project</title>
-    <style>
-        /* Mobile-friendly full-screen layout */
-        body, html {
-            margin: 0; padding: 0; height: 100%; overflow: hidden;
-            background-color: #000; font-family: sans-serif;
-        }
+<style>
+    body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
+    #container { position: relative; width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
+    
+    /* Force video to fill screen so it's not "invisible" */
+    video { width: 100%; height: 100%; object-fit: cover; background: #000; }
 
-        #container {
-            position: relative; width: 100vw; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-        }
+    #start-screen {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9); color: #FFB05B; z-index: 100;
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        cursor: pointer; text-align: center;
+    }
+</style>
 
-        video {
-            max-width: 100%; max-height: 100%;
-            cursor: pointer; /* Shows the user they can click */
-        }
+<div id="container">
+    <video id="mainVideo" muted playsinline preload="auto">
+        <source src="Testing.mp4" type="video/mp4">
+    </video>
 
-        /* The "Instruction" text that appears when paused */
-        #hint {
-            position: absolute; bottom: 10%; color: white;
-            background: rgba(0,0,0,0.6); padding: 10px 20px;
-            border-radius: 20px; pointer-events: none;
-            opacity: 0; transition: opacity 0.5s;
-        }
+    <audio id="starSound">
+        <source src="star_sound.mp3" type="audio/mpeg">
+    </audio>
 
-        #start-screen {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.8); /* Dark background */
-        backdrop-filter: blur(8px);    /* Professional blur effect */
-        color: #FFB05B;               /* Matching your sunflower/sunset orange */
-        z-index: 10;                  /* Ensures it stays on top */
-        cursor: pointer;
-        transition: opacity 0.8s ease; /* Smooth fade-out */
-         }
-
-        #start-screen h1 {
-        font-size: 2rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        }
-
-
-    </style>
+    <div id="start-screen">
+        <h1>TOUCH TO BEGIN<br>EXPERIENCE</h1>
+    </div>
+</div>
 </head>
 <body>
 
@@ -75,88 +54,51 @@
 
 <script>
     const video = document.getElementById('mainVideo');
-    const sound = document.getElementById('starSound');
-    const hint = document.getElementById('hint');
+    const starSound = document.getElementById('starSound');
     const startScreen = document.getElementById('start-screen');
+    const pauseTime = 4.5; // Change this to your star-stop time
+    let hasPaused = false;
 
+    console.log("System Ready: Files linked correctly.");
 
-// INITIAL START LOGIC
     startScreen.addEventListener('click', () => {
-    // 1. Hide the start screen
-    startScreen.style.opacity = "0";
-    setTimeout(() => {
-        startScreen.style.display = "none";
-    }, 800); // Waits for the fade-out to finish
-
-    // 2. Play the video
-    video.play();
-});
-
-    // --- USER CONFIGURATION ---
-    const pauseTime = 1.5; // Set this to your star's arrival time
-    let hasPaused = false; 
-
-    // 1. MASTER CLICK HANDLER
-    document.body.addEventListener('click', () => {
+        console.log("Touch detected! Attempting to play...");
         
-        // REPLAY LOGIC: If the video reached the end
-        if (video.ended) {
-            video.currentTime = 0; // Move back to the first frame
-            hasPaused = false;     // RE-ARM the pause logic for the new run
-            video.play();
-            hint.style.opacity = "0";
-            return;
-        }
+        // 1. Hide the start screen
+        startScreen.style.opacity = "0";
+        setTimeout(() => { startScreen.style.display = "none"; }, 500);
 
-        // INITIAL START: If the video hasn't played at all yet
-        if (video.paused && !hasPaused) {
-            video.play();
-            return;
-        }
-
-        // RESUME LOGIC: If the video is waiting at the Star
-        if (hasPaused && video.paused) {
-            video.play();
-            hint.style.opacity = "0";
-        }
+        // 2. Unmute and Play
+        video.muted = false; 
+        video.play().then(() => {
+            console.log("Playback started successfully with audio.");
+        }).catch(err => {
+            console.error("Playback failed: ", err);
+        });
     });
 
-    // 2. THE SIMULTANEOUS PAUSE CHECK
-    // This runs constantly while the video plays
+    // Handle the Star Pause
     video.addEventListener('timeupdate', () => {
-        // If the logic is 'armed' (hasPaused is false) and we hit the time:
         if (!hasPaused && video.currentTime >= pauseTime) {
+            console.log("Star position reached. Pausing video.");
             video.pause();
-            sound.play(); // Play your star sound
-            hint.innerText = "Touch the star to continue";
-            hint.style.opacity = "1";
-            
-            // 'Tripping' the circuit breaker so it doesn't pause again 
-            // until the video is restarted
-            hasPaused = true; 
+            starSound.play();
+            hasPaused = true;
         }
     });
 
-    // 3. THE END STATE
-    video.addEventListener('ended', () => {
-        hint.innerText = "Replay Animation";
-        hint.style.opacity = "1";
+    // Handle Replay
+    video.addEventListener('click', () => {
+        if (video.ended) {
+            console.log("Restarting animation...");
+            video.currentTime = 0;
+            hasPaused = false;
+            video.play();
+        } else if (video.paused && hasPaused) {
+            console.log("Resuming from Star pause...");
+            video.play();
+        }
     });
-
-const startScreen = document.getElementById('start-screen');
-const video = document.getElementById('mainVideo');
-
-startScreen.addEventListener('click', () => {
-    // 1. Hide the overlay
-    startScreen.style.opacity = "0";
-    setTimeout(() => { startScreen.style.display = "none"; }, 500);
-
-    // 2. IMPORTANT: Unmute and Play
-    video.muted = false; // This "flips the switch" to allow your music to be heard
-    video.play().catch(err => {
-        console.error("Playback failed. Logic Error:", err);
-    });
-});
 </script>
 
 
