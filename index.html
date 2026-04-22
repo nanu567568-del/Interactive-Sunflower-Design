@@ -17,6 +17,12 @@
         display: flex; flex-direction: column; justify-content: center; align-items: center;
         cursor: pointer; text-align: center;
     }
+    video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This makes it fill the screen like a cinematic shot */
+    display: block;
+}
 </style>
 
 <div id="container">
@@ -36,7 +42,7 @@
 <body>
 
 <div id="container">
-   <video id="mainVideo" muted playsinline>
+   <video id="mainVideo" muted playsinline preload="auto">
     <source src="Testing.mp4" type="video/mp4">
  </video>
 
@@ -61,22 +67,22 @@
 
     console.log("System Ready: Files linked correctly.");
 
-    startScreen.addEventListener('click', () => {
-        console.log("Touch detected! Attempting to play...");
-        
-        // 1. Hide the start screen
-        startScreen.style.opacity = "0";
-        setTimeout(() => { startScreen.style.display = "none"; }, 500);
+   startScreen.addEventListener('click', () => {
+    console.log("Touch detected! Attempting to play...");
+    
+    // 1. Hide the overlay
+    startScreen.style.opacity = "0";
+    setTimeout(() => { startScreen.style.display = "none"; }, 500);
 
-        // 2. Unmute and Play
-        video.muted = false; 
-        video.play().then(() => {
-            console.log("Playback started successfully with audio.");
-        }).catch(err => {
-            console.error("Playback failed: ", err);
-        });
+    // 2. THE FIX: Unmute first, then play
+    video.muted = false; 
+    
+    video.play().then(() => {
+        console.log("Playback started successfully with audio!");
+    }).catch(err => {
+        console.error("Playback failed. Error code:", err);
     });
-
+});
     // Handle the Star Pause
     video.addEventListener('timeupdate', () => {
         if (!hasPaused && video.currentTime >= pauseTime) {
