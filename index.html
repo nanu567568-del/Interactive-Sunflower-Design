@@ -5,55 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Sunflower Project</title>
     <style>
-        /* Mobile-friendly full-screen layout */
-        body, html {
-            margin: 0; padding: 0; height: 100%; overflow: hidden;
-            background-color: #000; font-family: sans-serif;
-        }
+    /* 1. Global Reset: Removes default browser "noise" */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        #container {
-            position: relative; width: 100vw; height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-        }
+    body, html {
+        width: 100%;
+        height: 100%;
+        overflow: hidden; /* Prevents accidental scrolling on mobile */
+        background-color: #000;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        video {
-            max-width: 100%; max-height: 100%;
-            cursor: pointer; /* Shows the user they can click */
-        }
+    #container {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh; /* dvh = Dynamic Viewport Height (fixes mobile address bar issues) */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-        /* The "Instruction" text that appears when paused */
-        #hint {
-            position: absolute; bottom: 10%; color: white;
-            background: rgba(0,0,0,0.6); padding: 10px 20px;
-            border-radius: 20px; pointer-events: none;
-            opacity: 0; transition: opacity 0.5s;
-            top: 60%;
-        }
+    video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* ESSENTIAL: Fills the screen while maintaining ratio */
+        z-index: 1;
+    }
 
-        #start-screen {
+    /* 2. Hint Text Optimization */
+    #hint {
         position: absolute;
-        top: 0; left: 0;
-        width: 100vw; height: 100vh;
+        bottom: 15%; /* Positioned relative to the bottom for thumb-reach */
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 12px 24px;
+        border-radius: 50px; /* Pill shape */
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        z-index: 50;
+        text-align: center;
+        width: max-content;
+        max-width: 80%;
+        font-size: clamp(1rem, 4vw, 1.2rem); /* Fluid typography based on screen size */
+    }
+
+    /* 3. Overlay Optimization */
+    #start-screen {
+        position: absolute;
+        inset: 0; /* Sets top, right, bottom, and left to 0 */
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background: rgba(0, 0, 0, 0.8); /* Dark background */
-        backdrop-filter: blur(8px);    /* Professional blur effect */
-        color: #FFB05B;               /* Matching your sunflower/sunset orange */
-        z-index: 10;                  /* Ensures it stays on top */
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(10px);
+        color: #FFB05B;
+        z-index: 100;
         cursor: pointer;
-        transition: opacity 0.8s ease; /* Smooth fade-out */
-         }
+        transition: opacity 0.8s ease;
+    }
 
-        #start-screen h1 {
-        font-size: 2rem;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        }
-
-
-    </style>
+    #start-screen h1 {
+        font-size: clamp(1.5rem, 8vw, 3rem); /* Dynamically scales text for mobile/laptop */
+        text-align: center;
+        padding: 20px;
+        line-height: 1.4;
+    }
+</style>
 </head>
 <body>
 
